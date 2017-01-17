@@ -70,11 +70,11 @@ void serialEvent(){               //This interrupt will trigger when the data co
 
 
   Serial.println("DO Readings:");
-  for (int a=0; a <= 10; a++){                     //Get 10 readings
+   //Get 10 readings
   get_DO();
   delay(600);      
-  }
-
+  
+  
 /*  Serial.println("EC Readings:");
   for (int a=0; a <= 10; a++){                     //Get 10 readings
   get_EC();
@@ -95,12 +95,28 @@ void serialEvent(){               //This interrupt will trigger when the data co
 */
 }
  void get_DO(){
-    digitalWrite(Pin_x, HIGH);                   // Set channel to 4
-    digitalWrite(Pin_y, HIGH);                   // Set channel to 4
-    single_test();
- } 
+    Serial1.write("4:r",13);                                //Give command to perform 1 test
+    //Serial1.write(13);
+    bool sensor_response=false;                        //variable to keep track of whether we have received a reading from the sensor
+    while(sensor_response=false){    
+        if(computer_bytes_received!=0){                 //If computer_bytes_received does not equal zero  
+        channel=strtok(computerdata, ":");            //Let's parse the string at each colon
+        cmd=strtok(NULL, ":");                        //Let's parse the string at each colon 
+        open_channel();                               //Call the function "open_channel" to open the correct data path
+        Serial1.print(cmd);                           //Send the command from the computer to the Atlas Scientific device using serial port 1 
+        Serial1.print("\r");                          //After we send the command we send a carriage return <CR> 
+        computer_bytes_received=0;                    //Reset the var computer_bytes_received to equal 0 
+        }
+  
+        if(sensor_bytes_received!=0){                    //If data has been transmitted from an Atlas Scientific device
+        Serial.println(sensordata);                   //let’s transmit the data received from the Atlas Scientific device to the serial monitor   
+        sensor_bytes_received=0;                      //Reset the var sensor_bytes_received to equal 0 
+        } 
+    }
+ }
+  
 
- void get_EC(){
+/* void get_EC(){
     digitalWrite(Pin_x, HIGH);                   // Set channel to 4
     digitalWrite(Pin_y, LOW);                   // Set channel to 4
     single_test();
@@ -120,7 +136,7 @@ void serialEvent(){               //This interrupt will trigger when the data co
 
 
 void single_test(){    
-    Serial1.write("r");                                //Give command to perform 1 test
+    Serial1.write("4:r");                                //Give command to perform 1 test
     Serial1.write(13);
     bool sensor_response=false;                        //variable to keep track of whether we have received a reading from the sensor
     while(sensor_response=false){    
@@ -137,7 +153,7 @@ void single_test(){
 ;
 }
 
-
+*/
  
   void open_channel(){                               //This function controls what UART port is opened. 
       
